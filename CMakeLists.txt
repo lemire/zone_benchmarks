@@ -11,5 +11,15 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+include(cmake/CPM.cmake)
+
+message(STATUS "We require git.")
+find_package(Git REQUIRED)
+CPMAddPackage(
+    NAME GTest
+    GITHUB_REPOSITORY NLnetLabs/simdzone
+    VERSION 0.1.0
+)
+
 # add the executable
 add_subdirectory(benchmarks)
