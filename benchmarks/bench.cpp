@@ -46,6 +46,7 @@ void benchmark(std::filesystem::path filename, std::string filter) {
   for(const char* kernel_name : {"haswell", "westmere", "fallback"}) {
     if (!(kernel = select_kernel(kernel_name))) {
       printf("# skipping %s\n", kernel_name);
+      continue;
     }
     benchname = std::string("simdzone") + kernel->name;
     if(benchname.find(filter) == std::string::npos) {
