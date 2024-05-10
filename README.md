@@ -80,3 +80,16 @@ The result might be as follow:
   27.97% maybe_take
   15.28% parse
 ```
+
+## Disk speed and memory
+
+You may want to check you disk speed:
+
+```
+sudo hdparm -Tt /dev/sda
+```
+
+```
+free  -h
+```
+
