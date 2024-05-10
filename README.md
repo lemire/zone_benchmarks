@@ -56,6 +56,9 @@ simdzonefallback                              :   0.38 GB/s ( 0 %)   2.97 GHz   
 knot3.3.4                                     :   0.19 GB/s ( 0 %)   3.16 GHz  17.06 c/b  23.45 i/b   1.37 i/c 
 ```
 
+Note that the benchmark involves disk access. However, if you have enough memory, we expect that the zone file
+will remain in disk cache.
+
 ## Running just some benchmarks
 
 An additional string parameter might be used as a filter:

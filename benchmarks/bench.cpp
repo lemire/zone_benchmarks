@@ -11,6 +11,34 @@ extern "C" {
 }
 #include "simdzonehelper.h"
 
+// Function to read a file block by block into a buffer, and return the total
+// number of bytes read This function is not actually 'useful' but it is used to
+// measure how quickly we can read the contents of a file into a buffer.
+size_t read_file_into_buffer(const char *filename) {
+  FILE *fp = fopen(filename, "rb"); // Open the file in binary mode
+  if (fp == NULL) {
+    perror("Error opening file");
+    return 0;
+  }
+  const size_t buffer_size = 1024; // Initial buffer size
+  char buffer[buffer_size];        // Buffer to store the file contents
+
+  if (buffer == NULL) {
+    perror("Error allocating memory for buffer");
+    fclose(fp);
+    return 0;
+  }
+
+  size_t total_bytes_read = 0;
+  size_t bytes_read;
+
+  while ((bytes_read = fread(buffer, 1, buffer_size, fp)) > 0) {
+    total_bytes_read += bytes_read;
+  }
+
+  fclose(fp);
+  return total_bytes_read;
+}
 static const void error(const char *str) {
   fprintf(stderr, "%s\n", str);
   exit(1);
@@ -42,14 +70,18 @@ void benchmark(std::filesystem::path filename, std::string filter) {
   std::string benchname;
   printf("Benchmarking file %s\n", filename.c_str());
   printf("Volume: %zu bytes\n", volume);
+  volatile size_t bytes_read = 0;
+  pretty_print(1, volume, "read_file", bench([&filename, &bytes_read]() {
+                 bytes_read += read_file_into_buffer(filename.c_str());
+               }));
   const kernel_t *kernel;
-  for(const char* kernel_name : {"haswell", "westmere", "fallback"}) {
+  for (const char *kernel_name : {"haswell", "westmere", "fallback"}) {
     if (!(kernel = select_kernel(kernel_name))) {
       printf("# skipping %s\n", kernel_name);
       continue;
     }
     benchname = std::string("simdzone") + kernel->name;
-    if(benchname.find(filter) == std::string::npos) {
+    if (benchname.find(filter) == std::string::npos) {
       continue;
     }
     pretty_print(1, volume, std::string("simdzone") + kernel->name,
@@ -87,25 +119,24 @@ void benchmark(std::filesystem::path filename, std::string filter) {
   benchname += std::to_string(ZSCANNER_VERSION_MINOR);
   benchname += ".";
   benchname += std::to_string(ZSCANNER_VERSION_PATCH);
-  if(benchname.find(filter) != std::string::npos) {
-  pretty_print(1, volume, benchname, bench([&filename]() {
-                 zs_scanner_t scanner;
-                 size_t rrs = 0;
-                 if (zs_init(&scanner, "com.", 1, 3600) == -1) {
-                   error("Could (K)not initialize scanner");
-                 }
-                 if (zs_set_processing(&scanner, &accept_rr, 0, &rrs) == -1) {
-                   error("Could (K)not set scanner callbacks");
-                 }
-                 if (zs_set_input_file(&scanner, filename.c_str()) == -1) {
-                   error("Could (K)not set input string");
-                 }
-                 if (zs_parse_all(&scanner) == -1) {
-                   error("Could (K)not parse input");
-                 }
-               }));
+  if (benchname.find(filter) != std::string::npos) {
+    pretty_print(1, volume, benchname, bench([&filename]() {
+                   zs_scanner_t scanner;
+                   size_t rrs = 0;
+                   if (zs_init(&scanner, "com.", 1, 3600) == -1) {
+                     error("Could not initialize scanner");
                    }
-
+                   if (zs_set_processing(&scanner, &accept_rr, 0, &rrs) == -1) {
+                     error("Could not set scanner callbacks");
+                   }
+                   if (zs_set_input_file(&scanner, filename.c_str()) == -1) {
+                     error("Could not set input string");
+                   }
+                   if (zs_parse_all(&scanner) == -1) {
+                     error("Could not parse input");
+                   }
+                 }));
+  }
 }
 
 int main(int argc, char *argv[]) {
@@ -115,7 +146,7 @@ int main(int argc, char *argv[]) {
   }
   std::string filename = argv[1];
   std::string filter;
-  if(argc > 2) {
+  if (argc > 2) {
     filter = argv[2];
   }
 
