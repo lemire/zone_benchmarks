@@ -35,6 +35,8 @@ If you use the container, these are taken care of, but otherwise, you need the f
 - CMake
 - Git
 - Knot (zscanner)
+- Flex
+- Bison
 
 ## Running benchmarks
 
