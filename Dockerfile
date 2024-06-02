@@ -8,7 +8,7 @@ FROM ubuntu:24.04
  RUN echo '----->'
  RUN echo 'root:Docker!' | chpasswd
  RUN apt-get update -qq
- RUN apt-get install -y vim hdparm ninja-build valgrind curl llvm gdb clang-format sudo python3 git python3-dev wget cmake g++ clang libcmocka-dev libknot-dev linux-tools-generic
+ RUN apt-get install -y vim hdparm ninja-build valgrind curl llvm gdb clang-format sudo python3 git python3-dev wget cmake g++ clang libcmocka-dev libknot-dev linux-tools-generic flex bison
  RUN addgroup --gid $GROUP_ID user; exit 0
  RUN adduser --disabled-password --gecos '' --uid $USER_ID --gid $GROUP_ID $USER_NAME; exit 0
  ENV TERM xterm-256color

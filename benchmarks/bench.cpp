@@ -1,5 +1,6 @@
 #include "performancecounters/benchmarker.h"
 #include <cassert>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -8,6 +9,16 @@
 extern "C" {
 #include <libzscanner/scanner.h>
 #include <libzscanner/version.h>
+#include <zonec.h>
+
+// for zonec
+static int32_t nsd_accept_rr(struct dname *owner, uint16_t type,
+                             uint16_t classn, uint32_t ttl, uint16_t rdlength,
+                             uint8_t *rdata, void *user_data) {
+  size_t *count = (size_t *)user_data;
+  (*count)++;
+  return 0;
+}
 }
 #include "simdzonehelper.h"
 
@@ -80,11 +91,11 @@ void benchmark(std::filesystem::path filename, std::string filter) {
       printf("# skipping %s\n", kernel_name);
       continue;
     }
-    benchname = std::string("simdzone") + kernel->name;
+    benchname = std::string("simdzone_") + kernel->name;
     if (benchname.find(filter) == std::string::npos) {
       continue;
     }
-    pretty_print(1, volume, std::string("simdzone") + kernel->name,
+    pretty_print(1, volume, benchname,
                  bench([&filename, kernel]() {
                    zone_parser_t parser;
                    memset(&parser, 0, sizeof(parser));
@@ -113,7 +124,7 @@ void benchmark(std::filesystem::path filename, std::string filter) {
                    zone_close(&parser);
                  }));
   }
-  benchname = "knot";
+  benchname = "knot_";
   benchname += std::to_string(ZSCANNER_VERSION_MAJOR);
   benchname += ".";
   benchname += std::to_string(ZSCANNER_VERSION_MINOR);
@@ -123,6 +134,7 @@ void benchmark(std::filesystem::path filename, std::string filter) {
     pretty_print(1, volume, benchname, bench([&filename]() {
                    zs_scanner_t scanner;
                    size_t rrs = 0;
+                   // use .com as default
                    if (zs_init(&scanner, "com.", 1, 3600) == -1) {
                      error("Could not initialize scanner");
                    }
@@ -135,6 +147,20 @@ void benchmark(std::filesystem::path filename, std::string filter) {
                    if (zs_parse_all(&scanner) == -1) {
                      error("Could not parse input");
                    }
+                 }));
+  }
+  benchname = "zonec (NSD 4.9)";
+  if (benchname.find(filter) != std::string::npos) {
+    pretty_print(1, volume, benchname, bench([&filename]() {
+                   size_t count = 0;
+                   zonec_setup_parser();
+                   parser->callback = nsd_accept_rr;
+                   parser->user_data = &count;
+                   // use .com as default
+                   if (zonec_read("com.", filename.c_str()) != 0) {
+                     error("Could not read files");
+                   }
+                   zonec_desetup_parser();
                  }));
   }
 }

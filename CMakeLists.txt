@@ -20,10 +20,13 @@ include(cmake/CPM.cmake)
 message(STATUS "We require git.")
 find_package(Git REQUIRED)
 CPMAddPackage(
-    NAME GTest
+    NAME simdzone
     GITHUB_REPOSITORY NLnetLabs/simdzone
     VERSION 0.1.0
 )
+#find_program(LEX_EXECUTABLE)
+CPMAddPackage("https://github.com/k0ekk0ek/zonec.git#0196635")
+
 
 # add the executable
 add_subdirectory(benchmarks)
