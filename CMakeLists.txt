@@ -22,7 +22,7 @@ find_package(Git REQUIRED)
 CPMAddPackage(
     NAME simdzone
     GITHUB_REPOSITORY NLnetLabs/simdzone
-    VERSION 0.1.0
+    GIT_TAG aab6386
 )
 #find_program(LEX_EXECUTABLE)
 CPMAddPackage("https://github.com/k0ekk0ek/zonec.git#0196635")
