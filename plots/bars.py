@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.rcParams['font.family'] = 'serif'
+matplotlib.rcParams.update({'font.size': 16})
 
 
 
