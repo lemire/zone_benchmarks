@@ -5,7 +5,7 @@
 event_collector collector;
 
 template <class function_type>
-event_aggregate bench(const function_type &function, size_t min_repeat = 1,
+event_aggregate bench(const function_type &function, size_t min_repeat = 5,
                       size_t min_time_ns = 1000000000,
                       size_t max_repeat = 1000000,
                       size_t warmup = 1) {
