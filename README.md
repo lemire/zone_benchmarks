@@ -75,8 +75,8 @@ knot3.3.4                                     :   0.19 GB/s ( 0 %)   3.17 GHz  1
 Within the image, you can profile the benchmark like so:
 
 ```
-/usr/lib/linux-tools/6.8.0-31-generic/perf record ./build/benchmarks/bench se.zone.txt haswell
-/usr/lib/linux-tools/6.8.0-31-generic/perf report
+/usr/lib/linux-tools/6.8.0-35-generic/perf record ./build/benchmarks/bench se.zone.txt haswell
+/usr/lib/linux-tools/6.8.0-35-generic/perf report
 ```
 
 The result might be as follow:
@@ -84,6 +84,15 @@ The result might be as follow:
   31.60% parse_rrsig_rdata
   27.97% maybe_take
   15.28% parse
+```
+
+Or
+
+```                                                                           ◆
+  28.04% maybe_take                                                                                ▒
+  15.31%  parse_ns_rdata                                                                            ▒
+   9.58%  maybe_take_contiguous                                                                     ▒
+   3.29%  parse_rrsig_rdata 
 ```
 
 ## Disk speed and memory
